@@ -105,7 +105,7 @@ func kernelVersion() string {
 	return string(kernel)
 }
 
-func osVersion() string {
+func osInformation() string {
 	osV, err := exec.Command("cat", "/etc/os-release").Output()
 	osVString := strings.Split(string(osV), "ID=")
 	if err != nil {

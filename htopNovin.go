@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 )
 
 type ServerData struct {
@@ -38,28 +37,21 @@ type ServerData struct {
 	Memory             string  `json:"memory"`
 }
 
-func int8ToStr(arr []int8) string {
-	b := make([]byte, 0, len(arr))
-	for _, v := range arr {
-		if v == 0x00 {
-			break
-		}
-		b = append(b, byte(v))
-	}
-	return string(b)
-}
-
 func main() {
-	var uname syscall.Utsname
 	client := &http.Client{}
 	hostname, _ := os.Hostname()
 	cpuAvg := getCpuAvg()
 	ramStatuses := ramStatus()
+	osNameInfo := strings.Split(osInformation(), "\n")[0]
+	osName := strings.Split(osNameInfo, "\"")
+	osVersionInfo := strings.Split(osInformation(), "\n")[1]
+	osVersion := strings.Split(osVersionInfo, "\"")
+	fmt.Println()
 	datas := ServerData{
 		HostName:           hostname,
 		Ip:                 getIp(),
-		Linux:              osVersion(),
-		OsName:             int8ToStr(uname.Sysname[:]),
+		Linux:              osVersion[1],
+		OsName:             osName[1],
 		Uptime:             uptime(),
 		Kernel:             kernelVersion(),
 		BashVersion:        bashVersion(),
