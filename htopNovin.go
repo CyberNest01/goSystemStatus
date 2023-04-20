@@ -23,18 +23,18 @@ type ServerData struct {
 	CpuAvg5min         float64 `json:"cpu_avg_5min"`
 	CpuAvg15min        float64 `json:"cpu_avg_15min"`
 	CpuInformation     string  `json:"cpu_information"`
-	RamSize            float32 `json:"ram_size"`
+	RamSize            string  `json:"ram_size"`
 	RamStatusTotal     uint64  `json:"ram_status_total"`
-	RamStatusAvailable float32 `json:"ram_status_available"`
-	RamStatusPercent   float32 `json:"ram_status_percent"`
-	RamStatusUsed      float32 `json:"ram_status_used"`
+	RamStatusAvailable string  `json:"ram_status_available"`
+	RamStatusPercent   string  `json:"ram_status_percent"`
+	RamStatusUsed      string  `json:"ram_status_used"`
 	RamStatusFree      uint64  `json:"ram_status_free"`
-	RamStatusActive    float32 `json:"ram_status_active"`
-	RamStatusInactive  float32 `json:"ram_status_inactive"`
-	RamStatusBuffers   float32 `json:"ram_status_buffers"`
-	RamStatusCached    float32 `json:"ram_status_cached"`
-	RamStatusShared    float32 `json:"ram_status_shared"`
-	RamStatusSlab      float32 `json:"ram_status_slab"`
+	RamStatusActive    string  `json:"ram_status_active"`
+	RamStatusInactive  string  `json:"ram_status_inactive"`
+	RamStatusBuffers   string  `json:"ram_status_buffers"`
+	RamStatusCached    string  `json:"ram_status_cached"`
+	RamStatusShared    string  `json:"ram_status_shared"`
+	RamStatusSlab      string  `json:"ram_status_slab"`
 	Memory             string  `json:"memory"`
 }
 
@@ -122,35 +122,101 @@ func sysFreeMemory() uint64 {
 	return uint64(in.Freeram) * uint64(in.Unit)
 }
 
+func ramStatus() []string {
+	ram, errCat := exec.Command("cat", "/proc/meminfo").Output()
+	ramShared, errShared := exec.Command("ipcs", "-l").Output()
+	var ramStatusList []string
+	if errCat != nil {
+		fmt.Println("could not run command: ", errCat)
+	}
+	if errShared != nil {
+		fmt.Println("could not run command: ", errShared)
+	}
+	ramStatusStr := strings.Split(string(ram), " kB")
+	ramSharedStr := strings.Split(string(ramShared), " =")
+	// RamSize
+	RamSize := strings.Split(ramStatusStr[0], ": ")
+	RamSizeMain := strings.ReplaceAll(RamSize[1], " ", "")
+	// RamStatusAvailable
+	Available := strings.Split(ramStatusStr[2], ": ")
+	AvailableMain := strings.ReplaceAll(Available[1], " ", "")
+	// per cpu
+	Per := strings.Split(ramStatusStr[35], ": ")
+	PerMain := strings.ReplaceAll(Per[1], " ", "")
+	// Active
+	Active := strings.Split(ramStatusStr[6], ": ")
+	ActiveMain := strings.ReplaceAll(Active[1], " ", "")
+	// Inactive
+	Inactive := strings.Split(ramStatusStr[7], ": ")
+	InactiveMain := strings.ReplaceAll(Inactive[1], " ", "")
+	// Buffers
+	Buffers := strings.Split(ramStatusStr[3], ": ")
+	BufferMain := strings.ReplaceAll(Buffers[1], " ", "")
+	// Cached
+	Cached := strings.Split(ramStatusStr[4], ": ")
+	CachedMain := strings.ReplaceAll(Cached[1], " ", "")
+	// Slab
+	Slab := strings.Split(ramStatusStr[22], ": ")
+	SlabMain := strings.ReplaceAll(Slab[1], " ", "")
+	// Swpd
+	Swpd := strings.Split(ramStatusStr[5], ": ")
+	SwpdMain := strings.ReplaceAll(Swpd[1], " ", "")
+	// Shared Memory
+	memoryShared := strings.Split(ramSharedStr[5], "\nm")
+	memorySharedMain := strings.ReplaceAll(memoryShared[0], " ", "")
+
+	ramStatusList = append(ramStatusList, RamSizeMain, AvailableMain, PerMain, ActiveMain, InactiveMain, BufferMain, CachedMain, SlabMain, SwpdMain, memorySharedMain)
+
+	return ramStatusList
+}
+
+func kernelVersion() string {
+	kernel, err := exec.Command("uname", "-r").Output()
+	if err != nil {
+		fmt.Println("could not run command: ", err)
+	}
+	return string(kernel)
+}
+
+func osVersion() string {
+	osV, err := exec.Command("cat", "/etc/os-release").Output()
+	osVString := strings.Split(string(osV), "ID=")
+	if err != nil {
+		fmt.Println("could not run command: ", err)
+	}
+	return osVString[0]
+}
+
 func ServerRequest() {
 	var uname syscall.Utsname
 	client := &http.Client{}
 	hostname, _ := os.Hostname()
 	cpuAvg := getCpuAvg()
+	ramStatuses := ramStatus()
 	datas := ServerData{
 		HostName:           hostname,
-		Linux:              int8ToStr(uname.Version[:]),
+		Linux:              osVersion(),
 		OsName:             int8ToStr(uname.Sysname[:]),
 		Uptime:             uptime(),
-		Kernel:             int8ToStr(uname.Release[:]),
+		Kernel:             kernelVersion(),
 		BashVersion:        bashVersion(),
 		CpuAvg1min:         cpuAvg[0],
 		CpuAvg5min:         cpuAvg[1],
 		CpuAvg15min:        cpuAvg[2],
 		CpuInformation:     cpuInformation(),
 		Memory:             memory(),
-		RamSize:            15.524925231933594,
+		RamSize:            ramStatuses[0],
 		RamStatusTotal:     sysTotalMemory(),
-		RamStatusAvailable: 3210944512,
-		RamStatusPercent:   80.7,
-		RamStatusUsed:      12685611008,
+		RamStatusAvailable: ramStatuses[1],
+		RamStatusPercent:   ramStatuses[2],
+		RamStatusUsed:      ramStatuses[8],
 		RamStatusFree:      sysFreeMemory(),
-		RamStatusActive:    2476175360,
-		RamStatusInactive:  12848930816,
-		RamStatusBuffers:   192327680,
-		RamStatusCached:    3426385920,
-		RamStatusShared:    431964160,
-		RamStatusSlab:      601997312,
+		RamStatusActive:    ramStatuses[3],
+		RamStatusInactive:  ramStatuses[4],
+		RamStatusBuffers:   ramStatuses[5],
+		RamStatusCached:    ramStatuses[6],
+		RamStatusShared:    ramStatuses[9],
+		RamStatusSlab:      ramStatuses[7],
 	}
 	out, _ := json.Marshal(&datas)
 	var data = strings.NewReader(string(out))
