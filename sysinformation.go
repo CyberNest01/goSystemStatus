@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -18,12 +19,18 @@ func getCpuAvg() []float64 {
 }
 
 func getIp() string {
-	ip, err := exec.Command("hostname", "-I").Output()
+	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		fmt.Println("could not run command: ", err)
 	}
-	return string(ip)
-
+	for _, a := range addrs {
+		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
 }
 
 func uptime() string {
