@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+var version = "0.0.1"
+
 type ServerData struct {
 	HostName           string  `json:"host_name"`
 	Ip                 string  `json:"ip"`
@@ -38,6 +40,15 @@ type ServerData struct {
 }
 
 func main() {
+	args := os.Args[1]
+	if args == "version" {
+		fmt.Println(version)
+	} else {
+		status_runner()
+	}
+}
+func status_runner() {
+
 	client := &http.Client{}
 	hostname, _ := os.Hostname()
 	cpuAvg := getCpuAvg()
