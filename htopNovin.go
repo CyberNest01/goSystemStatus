@@ -87,6 +87,7 @@ func status_runner() {
 	out, _ := json.Marshal(&datas)
 	var data = strings.NewReader(string(out))
 	req, err := http.NewRequest("POST", "https://stage.htop.ir/", data)
+	req.Header.Set("HTOP-AGENT-VERSION", version)
 	if err != nil {
 		log.Fatal(err)
 	}
