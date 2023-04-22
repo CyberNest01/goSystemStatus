@@ -40,7 +40,7 @@ type ServerData struct {
 func main() {
 	if len(os.Args) > 1 {
 		args := os.Args[1]
-		if args == "version" {
+		if args == "version" && len(os.Args) == 2 {
 			fmt.Println(version)
 		} else {
 			fmt.Println("you paramts is invalid")
