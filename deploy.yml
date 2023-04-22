@@ -21,4 +21,6 @@ deploy:
     - ./htopNovin version
     - PODNAME=$(kubectl get pod --selector=app.kubernetes.io/name=htopstatic -o name)
     - PODNAME=${PODNAME#*'/'}
+    - kubectl exec $PODNAME -- mkdir -p /usr/share/nginx/html/$(echo $VERSION|cut -d '.' -f 1)/$(echo $VERSION|cut -d '.' -f 2)/
     - kubectl cp ./htopNovin $PODNAME:/usr/share/nginx/html/
+    - kubectl cp ./htopNovin $PODNAME:/usr/share/nginx/html/$(echo $VERSION|cut -d '.' -f 1)/$(echo $VERSION|cut -d '.' -f 2)/htopNovin-$VERSION
