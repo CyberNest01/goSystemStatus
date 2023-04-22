@@ -1,5 +1,3 @@
-FROM golang AS build
+FROM golang
 COPY . .
 RUN CGO_ENABLED=0 go build
-
-COPY --from=build htopNovin .
