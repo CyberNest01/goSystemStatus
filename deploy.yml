@@ -1,7 +1,7 @@
 deploy:
   stage: deploy
   variables:
-    IMAGE_ID: "htopNovin:"
+    IMAGE_ID: "htopNovin"
   only:
     refs:
       - master
