@@ -1,0 +1,9 @@
+stages: [prepare, build, deploy]
+variables:
+    PROJECT_NAME: "systemstatus"
+build_all:
+  stage: build
+  script:
+    - "echo starting"
+include:
+  - 'deploy.yml'
