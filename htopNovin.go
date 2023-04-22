@@ -38,11 +38,8 @@ type ServerData struct {
 }
 
 func main() {
-	args := ""
 	if len(os.Args) > 1 {
-		args = os.Args[1]
-	}
-	if len(os.Args) > 1 {
+		args := os.Args[1]
 		if args == "version" {
 			fmt.Println(version)
 		} else {
