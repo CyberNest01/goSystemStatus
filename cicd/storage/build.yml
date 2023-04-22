@@ -1,0 +1,22 @@
+deploy_storage:
+  stage: deploy
+  variables:
+    PROJ_DIR: "."
+    IMAGE_ID: "scr.novinparva.com/htop/static:"
+  only:
+    refs:
+      - master
+    changes:
+      - cicd/storage/version.txt
+  environment:
+    name: $PROJECT_NAME
+  dependencies:
+    - build_all
+  script:
+    - pwd
+    - VERSION=$(cat cicd/storage/version.txt)
+    - IMAGE_TAG=$IMAGE_ID$VERSION
+    - docker build -t $IMAGE_TAG ./cicd/storage/
+    - docker push $IMAGE_TAG
+    - echo $IMAGE_TAG
+    - helm upgrade --install htop-storage cicd/storage --set image.tag=$VERSION -f cicd/storage/deploy.yaml
