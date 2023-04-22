@@ -13,6 +13,7 @@ deploy:
     - build_all
   script:
     - pwd
+    - rm -rf htopNovin
     - VERSION=$(cat version.go);VERSION=${VERSION#*'version = "'};VERSION=${VERSION%*'"'*}
     - echo $VERSION
     - docker build . -t $IMAGE_ID:latest
