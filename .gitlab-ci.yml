@@ -7,4 +7,4 @@ build_all:
     - "echo starting"
 include:
   - 'deploy.yml'
-  - 'cicd/storage/build.yml'
+  - 'cicd/storage/deploy.yml'
