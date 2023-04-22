@@ -18,4 +18,4 @@ deploy:
     - echo $VERSION
     - docker build . -t $IMAGE_ID:latest
     - docker run -v ./:/storage $IMAGE_ID:latest
-    - ls
+    - htopNovin version
