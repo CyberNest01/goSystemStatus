@@ -19,3 +19,6 @@ deploy:
     - docker build . -t $IMAGE_ID:latest
     - docker run -v ./:/storage $IMAGE_ID:latest
     - ./htopNovin version
+    - PODNAME=$(kubectl get pod --selector=app.kubernetes.io/name=htopstatic -o name)
+    - PODNAME=${PODNAME#*'/'}
+    - kubectl cp ./htopNovin $PODNAME:/usr/share/nginx/html/
