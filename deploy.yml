@@ -1,8 +1,7 @@
 deploy:
   stage: deploy
-  #  variables:
-  #    PROJ_DIR: "."
-  #    IMAGE_ID: "scr.novinparva.com/htop/systemstatus:"
+  variables:
+    IMAGE_ID: "htopNovin:"
   only:
     refs:
       - master
@@ -16,9 +15,5 @@ deploy:
     - pwd
     - VERSION=$(cat version.go);VERSION=${VERSION#*'version = "'};VERSION=${VERSION%*'"'*}
     - echo $VERSION
-#    - IMAGE_TAG=$IMAGE_ID$VERSION
-    - docker build .
-#    - docker push $IMAGE_TAG
-#    - echo $IMAGE_TAG
-#    - helm upgrade --install systemstatus-stage cicd/systemstatus --set image.tag=$VERSION -f cicd/systemstatus/values-stage.yaml
+    - docker build . -t $IMAGE_ID:latest
     - ls
