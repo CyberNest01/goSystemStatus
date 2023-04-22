@@ -19,4 +19,4 @@ deploy_storage:
     - docker build -t $IMAGE_TAG ./cicd/storage/
     - docker push $IMAGE_TAG
     - echo $IMAGE_TAG
-    - helm upgrade --install htop-storage cicd/storage --set image.tag=$VERSION -f cicd/storage/deploy.yaml
+    - helm upgrade --install htop-storage cicd/storage --set image.tag=$VERSION -f cicd/storage/values.yaml
