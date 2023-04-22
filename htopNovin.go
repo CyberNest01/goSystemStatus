@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-var version = "0.0.1"
-
 type ServerData struct {
 	HostName           string  `json:"host_name"`
 	Ip                 string  `json:"ip"`
