@@ -1,5 +1,5 @@
 FROM golang
-WORKDIR /usr/src/app
+WORKDIR /app
 COPY . .
 RUN CGO_ENABLED=0 go build
-CMD cp /usr/src/app/htopNovin /storage
+CMD cp /app/htopNovin /storage

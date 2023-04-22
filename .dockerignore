@@ -1,0 +1,7 @@
+.gitignore
+.gitlab-ci.yml
+dockerfile
+Readme.md
+upload.sh
+.idea
+htopNovin

@@ -16,4 +16,5 @@ deploy:
     - VERSION=$(cat version.go);VERSION=${VERSION#*'version = "'};VERSION=${VERSION%*'"'*}
     - echo $VERSION
     - docker build . -t $IMAGE_ID:latest
+    - docker run --mount source=./,target=/storage $IMAGE_ID:latest
     - ls
