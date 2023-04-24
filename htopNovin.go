@@ -38,6 +38,7 @@ type ServerData struct {
 }
 
 func main() {
+	var token string
 	if len(os.Args) > 1 {
 		args := os.Args[1]
 		if args == "version" && len(os.Args) == 2 {
@@ -46,25 +47,31 @@ func main() {
 			fmt.Println("you paramts is invalid")
 		}
 	} else {
-		status_runner()
-	}
-}
-func status_runner() {
+		fmt.Print("put your token(If you are running for the first time, press the 's' and ENTER button): ")
+		fmt.Scan(&token)
 
+		status_runner(token)
+
+	}
+
+}
+func status_runner(token string) {
 	client := &http.Client{}
 	hostname, _ := os.Hostname()
 	cpuAvg := getCpuAvg()
 	ramStatuses := ramStatus()
-	osNameInfo := strings.Split(osInformation(), "\n")[0]
-	osName := strings.Split(osNameInfo, "\"")
-	osVersionInfo := strings.Split(osInformation(), "\n")[1]
-	osVersion := strings.Split(osVersionInfo, "\"")
+	name := strings.Split(osInformation(), "NAME=\"")
+	nameMain := strings.SplitAfterN(name[1], "\"", 2)
+	nameMain = strings.Split(nameMain[0], "\"")
+	osVersion := strings.Split(osInformation(), "VERSION=\"")
+	osVersionMain := strings.SplitAfterN(osVersion[1], "\"", 2)
+	osVersionMain = strings.Split(osVersionMain[0], "\"")
 	fmt.Println()
 	datas := ServerData{
 		HostName:           hostname,
 		Ip:                 getIp(),
-		Linux:              osVersion[1],
-		OsName:             osName[1],
+		Linux:              osVersionMain[0],
+		OsName:             nameMain[0],
 		Uptime:             uptime(),
 		Kernel:             kernelVersion(),
 		BashVersion:        bashVersion(),
@@ -86,13 +93,18 @@ func status_runner() {
 		RamStatusShared:    ramStatuses[9],
 		RamStatusSlab:      ramStatuses[7],
 	}
+
+	//response, err := http.Get("http://127.0.0.1:8000/system/add/")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//tokenMain := response.Header["Http_htop_agent_token"][0]
+
 	out, _ := json.Marshal(&datas)
 	var data = strings.NewReader(string(out))
 	req, err := http.NewRequest("POST", "https://stage.htop.ir/system/add/", data)
 	req.Header.Set("HTOP-AGENT-VERSION", version)
-	if err != nil {
-		log.Fatal(err)
-	}
+	req.Header.Set("HTOP-AGENT-TOKEN", token)
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
